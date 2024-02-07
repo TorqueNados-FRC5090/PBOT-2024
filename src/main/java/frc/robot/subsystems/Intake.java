@@ -18,6 +18,7 @@ public class Intake extends SubsystemBase{
     private CANSparkMax rotationMotor;
     private GenericPID rotationPID;
     private LimitSwitch limitSwitch;
+	
 
     public Intake(int intakeID, int rotateID, int limPort){
         intakeMotor = new CANSparkMax(intakeID, MotorType.kBrushless);
