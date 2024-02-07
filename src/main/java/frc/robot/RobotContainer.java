@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.intake_commands.IntakePiece;
 import frc.robot.commands.AutonContainer;
+import frc.robot.commands.LEDControlCommand;
 import frc.robot.commands.LockDrivetrain;
 import frc.robot.commands.intake_commands.Eject;
 import frc.robot.commands.LimeDrive;
@@ -69,6 +70,8 @@ public class RobotContainer {
     private void setDefaultCommands() {
         // Set the intake to always be intaking by default
         intake.setDefaultCommand(new IntakePiece(intake));
+        // we are making the LED to be on the entire time 
+        blinkin.setDefaultCommand(new LEDControlCommand(intake, blinkin));
     }
 
     /** Configures a set of control bindings for the robot's operator */

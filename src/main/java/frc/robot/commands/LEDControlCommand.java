@@ -5,11 +5,12 @@ import frc.robot.subsystems.Blinkin;
 import frc.robot.subsystems.Intake;
 
 public class LEDControlCommand extends Command {
-    Intake intake;
-    Blinkin blinkin;
+    private Intake intake;
+    private Blinkin blinkin;
     public LEDControlCommand(Intake intake, Blinkin blinkin) {
        this.intake = intake;
        this.blinkin = blinkin;
+       addRequirements(blinkin);
     }
 
     @Override
