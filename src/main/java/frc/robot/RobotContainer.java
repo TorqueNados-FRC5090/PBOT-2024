@@ -37,7 +37,7 @@ public class RobotContainer {
     private final Intake intake = new Intake(INTAKE_DRIVER_ID, INTAKE_ROTATOR_ID, INTAKE_LIMIT_ID);
     private final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID);
     private final Blinkin blinkin = new Blinkin();
-    private final Limelight shooterLimelight = new Limelight("limelight-pbshoot");
+    private final Limelight shooterLimelight = new Limelight("limelight-pbshoot", true);
     
     private final AutonContainer auton = new AutonContainer();
     private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();    

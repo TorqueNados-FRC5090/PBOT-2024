@@ -11,13 +11,6 @@ public class Limelight extends SubsystemBase {
     /** Constructs a limelight
      *  @param tableName The name of the network table that the limelight is posting to.
      *  This should be the limelight's configured hostname. Default is "limelight"
-     */
-    public Limelight(String tableName) {
-        table = NetworkTableInstance.getDefault().getTable(tableName);
-    }
-    /** Constructs a limelight
-     *  @param tableName The name of the network table that the limelight is posting to.
-     *  This should be the limelight's configured hostname. Default is "limelight"
      *  @param rearMounted Whether the limelight is mounted on the rear of the robot
      */
     public Limelight(String tableName, boolean rearMounted) {
