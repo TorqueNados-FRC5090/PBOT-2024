@@ -1,7 +1,11 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.DriveConstants.ROTATION_SLEW;
+import static frc.robot.Constants.DriveConstants.TRANSLATION_SLEW;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Limelight;
@@ -18,6 +22,10 @@ public class LimeDrive extends Command {
     private final PIDController driveControllerX;
     private final PIDController driveControllerY;
     private final PIDController headingController;
+
+    private final SlewRateLimiter slewX = new SlewRateLimiter(TRANSLATION_SLEW);
+    private final SlewRateLimiter slewY = new SlewRateLimiter(TRANSLATION_SLEW);
+    private final SlewRateLimiter slewRotation = new SlewRateLimiter(ROTATION_SLEW);
     
     // The command should be able to end on it's own unless specified otherwise
     private boolean ends = true;
@@ -32,8 +40,8 @@ public class LimeDrive extends Command {
         this.drivetrain = drivetrain;
         this.limelight = limelight;
         originalOrientation = drivetrain.isFieldCentric();
-        goalOffset = goalPosition.getX();
-        goalDistance = goalPosition.getY();
+        goalOffset = -goalPosition.getX();
+        goalDistance = limelight.isRearMounted() ? -Math.abs(goalPosition.getY()) : Math.abs(goalPosition.getY());
 
         // Configure PID Controllers for each axis of movement
         driveControllerX = new PIDController(.7, 0, 0);
@@ -83,21 +91,21 @@ public class LimeDrive extends Command {
         double targetDist = targetpose[2];
         double targetAngle = targetpose[4];
 
-        // Preprocess the driving instructions
+        // Calculate the driving instructions
         double xRawOutput = driveControllerX.calculate(targetX, goalOffset);
-        double xClamped = MathUtil.clamp(xRawOutput, -1, 1);
-        double x = MathUtil.applyDeadband(xClamped, .01);
+        double xDeadbanded = MathUtil.applyDeadband(xRawOutput, .05);
+        double xSlewed = slewX.calculate(xDeadbanded);
         
         double yRawOutput = -driveControllerY.calculate(targetDist, goalDistance);
-        double yClamped = MathUtil.clamp(yRawOutput, -1, 1);    
-        double y = MathUtil.applyDeadband(yClamped, .01);
+        double yDeadbanded = MathUtil.applyDeadband(yRawOutput, .05);
+        double ySlewed = slewY.calculate(yDeadbanded);
         
         double rotRawOutput = -headingController.calculate(targetAngle, 0);
-        double rotClamped = MathUtil.clamp(rotRawOutput, -1, 1);
-        double rotation = MathUtil.applyDeadband(rotClamped, .01);
-               
+        double rotDeadbanded = MathUtil.applyDeadband(rotRawOutput, .05);
+        double rotSlewed = slewRotation.calculate(rotDeadbanded);
+        
         // Send the instructions to the drivetrain
-        drivetrain.sendDrive(x, y, rotation, true); 
+        drivetrain.sendDrive(xSlewed, ySlewed, rotSlewed, true); 
     }
 
     
