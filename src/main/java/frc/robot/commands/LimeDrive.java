@@ -96,13 +96,19 @@ public class LimeDrive extends Command {
         double xDeadbanded = MathUtil.applyDeadband(xRawOutput, .05);
         double xSlewed = slewX.calculate(xDeadbanded);
         
-        double yRawOutput = -driveControllerY.calculate(targetDist, goalDistance);
+        double yRawOutput = driveControllerY.calculate(targetDist, goalDistance);
         double yDeadbanded = MathUtil.applyDeadband(yRawOutput, .05);
         double ySlewed = slewY.calculate(yDeadbanded);
         
-        double rotRawOutput = -headingController.calculate(targetAngle, 0);
+        double rotRawOutput = headingController.calculate(targetAngle, 0);
         double rotDeadbanded = MathUtil.applyDeadband(rotRawOutput, .05);
         double rotSlewed = slewRotation.calculate(rotDeadbanded);
+               
+        // Invert the Y axis movement and rotation if limelight is rear mounted
+        if (limelight.isRearMounted()) {
+            ySlewed = -ySlewed;
+            rotSlewed = -rotSlewed;
+        }
         
         // Send the instructions to the drivetrain
         drivetrain.sendDrive(xSlewed, ySlewed, rotSlewed, true); 
