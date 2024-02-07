@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Limelight extends SubsystemBase {
     private NetworkTable table;
+    private boolean rear;
 
     /** Constructs a limelight
      *  @param tableName The name of the network table that the limelight is posting to.
@@ -13,6 +14,15 @@ public class Limelight extends SubsystemBase {
      */
     public Limelight(String tableName) {
         table = NetworkTableInstance.getDefault().getTable(tableName);
+    }
+    /** Constructs a limelight
+     *  @param tableName The name of the network table that the limelight is posting to.
+     *  This should be the limelight's configured hostname. Default is "limelight"
+     *  @param rearMounted Whether the limelight is mounted on the rear of the robot
+     */
+    public Limelight(String tableName, boolean rearMounted) {
+        table = NetworkTableInstance.getDefault().getTable(tableName);
+        rear = rearMounted;
     }
 
     /** @return Whether the limelight sees at least one valid target */
@@ -25,6 +35,8 @@ public class Limelight extends SubsystemBase {
     public double getTargetArea() { return table.getEntry("ta").getDouble(0); }
     /** @return The ID of the primary apriltag in view of the limelight */
     public double getTargetID() { return table.getEntry("tid").getDouble(0); }
+    /** @return Whether the limelight is mounted on the rear of the robot */
+    public boolean isRearMounted() { return rear; }
 
     /** @return the position and rotation of the robot relative to the center of the field. 
      * This is returned as an array: [X,Y,Z,Roll,Pitch,Yaw,Latency] */

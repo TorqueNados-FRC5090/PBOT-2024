@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.drivetrain.SwerveDrivetrain;
@@ -12,32 +13,34 @@ public class LimeDrive extends Command {
     private final boolean originalOrientation;
     private final Limelight limelight;
     private final double goalDistance;
+    private final double goalOffset;
     
     private final PIDController driveControllerX;
     private final PIDController driveControllerY;
     private final PIDController headingController;
     
-    private boolean ends;
+    // The command should be able to end on it's own unless specified otherwise
+    private boolean ends = true;
 
     /** Constructs a LimeDrive command
      * 
      *  @param drivetrain The drivetrain that will be driven by this command
      *  @param limelight The limelight camera that will be used for tracking
-     *  @param goalDistance How far away from the target the robot should be at the end of the command
+     *  @param goalPosition Where the target should be at the end of the command relative to the robot
      */
-    public LimeDrive(SwerveDrivetrain drivetrain, Limelight limelight, double goalDistance) {
+    public LimeDrive(SwerveDrivetrain drivetrain, Limelight limelight, Translation2d goalPosition) {
         this.drivetrain = drivetrain;
-        originalOrientation = drivetrain.isFieldCentric();
         this.limelight = limelight;
-        this.goalDistance = goalDistance;
-        this.ends = true;
+        originalOrientation = drivetrain.isFieldCentric();
+        goalOffset = goalPosition.getX();
+        goalDistance = goalPosition.getY();
 
         // Configure PID Controllers for each axis of movement
         driveControllerX = new PIDController(.7, 0, 0);
-        driveControllerX.setTolerance(.1); // Allow for 5 centimeters of positional error
+        driveControllerX.setTolerance(.1); // Allow for 10 centimeters of positional error
 
         driveControllerY = new PIDController(.7, 0, 0);
-        driveControllerY.setTolerance(.1); // Allow for 5 centimeters of positional error
+        driveControllerY.setTolerance(.1); // Allow for 10 centimeters of positional error
 
         headingController = new PIDController(.02, 0, .0005);
         headingController.setTolerance(2); // Allow for 2 degrees of rotational error
@@ -50,11 +53,11 @@ public class LimeDrive extends Command {
      * 
      *  @param drivetrain The drivetrain that will be driven by this command
      *  @param limelight The limelight camera that will be used for tracking
-     *  @param goalDistance How far away from the target the robot should be at the end of the command
+     *  @param goalPosition Where the target should be at the end of the command relative to the robot
      *  @param ends Whether the command should end when the robot has reached its destination
      */
-    public LimeDrive(SwerveDrivetrain drivetrain, Limelight limelight, double goalDistance, boolean ends) { 
-        this(drivetrain, limelight, goalDistance);
+    public LimeDrive(SwerveDrivetrain drivetrain, Limelight limelight, Translation2d goalPosition, boolean ends) { 
+        this(drivetrain, limelight, goalPosition);
         this.ends = ends;
     }
 
@@ -81,7 +84,7 @@ public class LimeDrive extends Command {
         double targetAngle = targetpose[4];
 
         // Preprocess the driving instructions
-        double xRawOutput = driveControllerX.calculate(targetX, 0);
+        double xRawOutput = driveControllerX.calculate(targetX, goalOffset);
         double xClamped = MathUtil.clamp(xRawOutput, -1, 1);
         double x = MathUtil.applyDeadband(xClamped, .01);
         
@@ -100,10 +103,10 @@ public class LimeDrive extends Command {
     
     @Override // Command ends when robot has reached its destination
     public boolean isFinished() {
-        return driveControllerX.atSetpoint() &&
+        return ends &&
+               driveControllerX.atSetpoint() &&
                driveControllerY.atSetpoint() &&
-               headingController.atSetpoint() &&
-               ends;
+               headingController.atSetpoint();
     }
 
     

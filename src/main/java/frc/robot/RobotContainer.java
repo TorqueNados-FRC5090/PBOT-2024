@@ -5,8 +5,13 @@ import static frc.robot.Constants.ControllerPorts.*;
 import static frc.robot.Constants.IntakeIDs.*;
 import static frc.robot.Constants.IntakeConstants.IntakePosition;
 import static frc.robot.Constants.ShooterIDs.*;
-
-// Command imports
+// Import subsytems
+import frc.robot.subsystems.drivetrain.SwerveDrivetrain;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Blinkin;
+// Import commands
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -18,16 +23,11 @@ import frc.robot.commands.LimeDrive;
 import frc.robot.commands.intake_commands.IntakeAutoPickup;
 import frc.robot.commands.intake_commands.SetIntakePosition;
 import frc.robot.commands.SwerveDriveCommand;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Blinkin;
-import frc.robot.subsystems.drivetrain.SwerveDrivetrain;
-
 // Other imports
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public class RobotContainer {
     private final XboxController driverController = new XboxController(DRIVER_PORT);
@@ -90,7 +90,7 @@ public class RobotContainer {
         toggleOrientationBtn.onTrue(new InstantCommand(() -> drivetrain.toggleFieldCentric()));
         // HOLD RT -> The robot will automatically drive 2 meters infront of the nearest in-view apriltag
         Trigger limeDriveBtn = new Trigger(() -> driverController.getRightTriggerAxis() > .5);
-        limeDriveBtn.whileTrue(new LimeDrive(drivetrain, shooterLimelight, -2, false));
+        limeDriveBtn.whileTrue(new LimeDrive(drivetrain, shooterLimelight, new Translation2d(0, -2), false));
     }
 
     /** Configures a set of control bindings for the robot's operator */
