@@ -30,9 +30,9 @@ public class Shooter extends SubsystemBase{
     }
 
     /** @return Whether the shooter has reached its target speed */
-    public boolean atTargetSpeed() { return shooterPID.isAtSetpoint(); }
+    public boolean atTargetSpeed() { return shooterPID.atSetpoint(10); }
     /** @return The RPM of the leader motor */
-    public double getRPM() { return leaderMotor.getEncoder().getVelocity(); }
+    public double getRPM() { return shooterPID.getMeasurement(); }
 
     /** Activates the shooter PID
      *  @param RPM The speed of the shooter in % power

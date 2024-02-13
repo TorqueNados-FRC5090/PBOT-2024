@@ -28,19 +28,18 @@ public class Intake extends SubsystemBase{
         rotationMotor = new CANSparkMax(rotateID, MotorType.kBrushless);
         rotationMotor.restoreFactoryDefaults();
         rotationMotor.setIdleMode(IdleMode.kBrake);
-        rotationPID = new GenericPID(rotationMotor, ControlType.kPosition, 0.06, ROTATION_MOTOR_RATIO);
+        rotationPID = new GenericPID(rotationMotor, ControlType.kPosition, 0.06);
+        rotationPID.setRatio(ROTATION_MOTOR_RATIO);
 
         limitSwitch = new LimitSwitch(limPort);
         limitSwitch.setInverted(true);
     }
 
     public void intake(double speed){  
-        if(limitSwitch.isNotPressed()) {
+        if(limitSwitch.isNotPressed()) 
             intakeMotor.set(-speed);
-        }
-        else {
+        else
             stopIntake();
-        }
     }
 
     public void eject(double speed){
@@ -69,12 +68,12 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean intakeAtSetPoint(){
-        return rotationPID.isAtSetpoint();
+        return rotationPID.atSetpoint(3);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Intake Position Degrees", rotationPID.getPosition());
+        SmartDashboard.putNumber("Intake Position Degrees", rotationPID.getMeasurement());
         SmartDashboard.putBoolean("Intake Has Piece", holdingPiece());
     }
 }
