@@ -3,7 +3,6 @@ package frc.robot;
 // Import constants
 import static frc.robot.Constants.ControllerPorts.*;
 import static frc.robot.Constants.IntakeIDs.*;
-import static frc.robot.Constants.IntakeConstants.IntakePosition;
 import static frc.robot.Constants.ShooterIDs.*;
 
 // Command imports
@@ -11,10 +10,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.intake_commands.IntakePiece;
+import frc.robot.Constants.IntakeConstants.IntakePosition;
 import frc.robot.commands.AutonContainer;
 import frc.robot.commands.LockDrivetrain;
-import frc.robot.commands.intake_commands.Eject;
 import frc.robot.commands.LimeDrive;
+import frc.robot.commands.intake_commands.Eject;
 import frc.robot.commands.intake_commands.IntakeAutoPickup;
 import frc.robot.commands.intake_commands.SetIntakePosition;
 import frc.robot.commands.SwerveDriveCommand;
@@ -23,7 +23,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Blinkin;
 import frc.robot.subsystems.drivetrain.SwerveDrivetrain;
-
+import edu.wpi.first.wpilibj.DriverStation;
 // Other imports
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,13 +33,13 @@ public class RobotContainer {
     private final XboxController driverController = new XboxController(DRIVER_PORT);
     private final XboxController operatorController = new XboxController(OPERATOR_PORT);
 
-    private final SwerveDrivetrain drivetrain = new SwerveDrivetrain();
-    private final Intake intake = new Intake(INTAKE_DRIVER_ID, INTAKE_ROTATOR_ID, INTAKE_LIMIT_ID);
-    private final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID);
-    private final Blinkin blinkin = new Blinkin();
-    private final Limelight shooterLimelight = new Limelight("limelight-pbshoot");
+    public final SwerveDrivetrain drivetrain = new SwerveDrivetrain();
+    public final Intake intake = new Intake(INTAKE_DRIVER_ID, INTAKE_ROTATOR_ID, INTAKE_LIMIT_ID);
+    public final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID);
+    public final Blinkin blinkin = new Blinkin();
+    public final Limelight shooterLimelight = new Limelight("limelight-pbshoot");
     
-    private final AutonContainer auton = new AutonContainer();
+    private final AutonContainer auton = new AutonContainer(this);
     private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();    
 
     /** Constructs a RobotContainer */
@@ -63,6 +63,9 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return autonChooser.getSelected();
+    }
+    public boolean onRedAlliance() { 
+        return DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red);
     }
 
     /** Configures a set of commands that will run by default without human operation */
@@ -108,7 +111,6 @@ public class RobotContainer {
         // HOLD X -> Activate the automatic intake
         Trigger AutoIntakeBtn = new Trigger(() -> driverController.getLeftTriggerAxis() > .5);
         AutoIntakeBtn.whileTrue(new IntakeAutoPickup(intake));
-
         // HOLD RT -> Drive the intake outward for piece ejection
         Trigger ejectBtn = new Trigger(() -> operatorController.getRightTriggerAxis() > .5);
         ejectBtn.whileTrue(new Eject(intake));

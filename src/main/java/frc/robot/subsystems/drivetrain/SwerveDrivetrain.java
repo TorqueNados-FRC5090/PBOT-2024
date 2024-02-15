@@ -172,6 +172,18 @@ public class SwerveDrivetrain extends SubsystemBase {
             module.setDesiredState(moduleStates[module.getModuleNumber()], isOpenLoop);
     }
 
+    public void driveRobotRelative(ChassisSpeeds speeds) { 
+        // Convert ChassisSpeed instructions to useable SwerveModuleStates
+        SwerveModuleState[] moduleStates = SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
+
+        // Normalize output if any of the modules would be instructed to go faster than possible
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_TRANSLATION_SPEED);
+
+        // Send instructions to each module
+        for (SwerveModule module : swerveModules.values())
+            module.setDesiredState(moduleStates[module.getModuleNumber()], true);
+    }
+
     // Misc getters
     /** @return The current direction the robot is facing in degrees */
     public double getHeadingDegrees() { return -Math.IEEEremainder(gyro.getAngle(), 360); }
@@ -187,7 +199,8 @@ public class SwerveDrivetrain extends SubsystemBase {
     /** @param position The {@link ModulePosition position} of the module
      *  @return The {@link SwerveModule swerve module} at that position */
     public SwerveModule getSwerveModule(ModulePosition position) { return swerveModules.get(ModulePosition.FRONT_LEFT); }
-    
+    public ChassisSpeeds getChassisSpeeds() { return SWERVE_KINEMATICS.toChassisSpeeds(getModuleStates()); }
+
     // Methods related to field orientation
     /** @return Whether or not the robot is in field oriented mode */
     public boolean isFieldCentric() { return isFieldCentric; }
