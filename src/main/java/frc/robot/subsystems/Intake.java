@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.IntakeConstants.*;
 
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -15,7 +16,7 @@ import frc.robot.wrappers.LimitSwitch;
 
 public class Intake extends SubsystemBase{
     private CANSparkMax intakeMotor;
-    private CANSparkMax rotationMotor;
+    private CANSparkFlex rotationMotor;
     private GenericPID rotationPID;
     private LimitSwitch limitSwitch;
 	
@@ -25,11 +26,11 @@ public class Intake extends SubsystemBase{
         intakeMotor.restoreFactoryDefaults();
         intakeMotor.setInverted(true);
         
-        rotationMotor = new CANSparkMax(rotateID, MotorType.kBrushless);
+        rotationMotor = new CANSparkFlex(rotateID, MotorType.kBrushless);
         rotationMotor.restoreFactoryDefaults();
         rotationMotor.setIdleMode(IdleMode.kBrake);
         rotationPID = new GenericPID(rotationMotor, ControlType.kPosition, 0.06);
-        rotationPID.setRatio(ROTATION_MOTOR_RATIO);
+        rotationPID.setRatio(INTAKE_PIVOT_RATIO);
 
         limitSwitch = new LimitSwitch(limPort);
         limitSwitch.setInverted(true);

@@ -15,54 +15,56 @@ public final class Constants {
 
     /* -------------- IDs -------------- */
 
-    /** Ports used by controllers. */
+    /** USB ports used by controllers. */
     public static final class ControllerPorts {
         public static final int DRIVER_PORT = 0;
         public static final int OPERATOR_PORT = 1;
     }
 
-    /** IDs used by the drivetrain.
-        3X for turning, 4X for driving, 5X for abs encoders. */
-        public static final class WestCoastIDs {
-            // Left Motor IDs
-            public static final int LEFT1_ID = 2;
-            public static final int LEFT2_ID = 3;
-            // Right Motor IDs
-            public static final int RIGHT1_ID = 6;
-            public static final int RIGHT2_ID = 7;
-        }
+    /** PWM ports used by blinkin LED controllers */
+    public static final class BlinkinPorts {
+        public static final int SHOOTER_LEDS_PORT = 0;
+    }
 
     /** IDs used by the swerve drivetrain.
         3X for turning, 4X for driving, 5X for abs encoders. */
     public static final class SwerveIDs {
         // Front left module
-        public static final int FL_DRIVE_ID = 42;
-        public static final int FL_TURN_ID = 32;
-        public static final int FL_ENCODER_ID = 52;
+        public static final int FL_TURN_ID = 30;
+        public static final int FL_DRIVE_ID = 40;
+        public static final int FL_ENCODER_ID = 50;
         // Front right module
-        public static final int FR_DRIVE_ID = 40;
-        public static final int FR_TURN_ID = 30;
-        public static final int FR_ENCODER_ID = 50;
+        public static final int FR_TURN_ID = 31;
+        public static final int FR_DRIVE_ID = 41;
+        public static final int FR_ENCODER_ID = 51;
         // Rear left module
-        public static final int RL_DRIVE_ID = 43;
-        public static final int RL_TURN_ID = 33;
-        public static final int RL_ENCODER_ID = 53;
+        public static final int RL_TURN_ID = 32;
+        public static final int RL_DRIVE_ID = 42;
+        public static final int RL_ENCODER_ID = 52;
         // Rear right module
-        public static final int RR_DRIVE_ID = 41;
-        public static final int RR_TURN_ID = 31;
-        public static final int RR_ENCODER_ID = 51;
+        public static final int RR_TURN_ID = 33;
+        public static final int RR_DRIVE_ID = 43;
+        public static final int RR_ENCODER_ID = 53;
     }
 
+    /** IDs used by the intake */
     public static final class IntakeIDs {
         public static final int INTAKE_DRIVER_ID = 10;
         public static final int INTAKE_ROTATOR_ID = 11;
         public static final int INTAKE_LIMIT_ID = 0;
     }
 
-    public static final class  ShooterIDs {
+    /** IDs used by the shooter */
+    public static final class ShooterIDs {
         public static final int SHOOTER_LEFT_ID = 12;
         public static final int SHOOTER_RIGHT_ID = 13;
-        
+        public static final int SHOOTER_PIVOT_LEFT_ID = 14;
+        public static final int SHOOTER_PIVOT_RIGHT_ID = 15;   
+    }
+
+    public static final class ClimberIDs {
+        public static final int CLIMBER_LEFT_ID = 16;
+        public static final int CLIMBER_RIGHT_ID = 17;
     }
 
     /* -------------- SUBSYTEM CONSTANTS -------------- */
@@ -84,15 +86,27 @@ public final class Constants {
             }
         }
 
-        public static final double ROTATION_MOTOR_RATIO = .1125;
+        /** Converts intake pivot motor revolutions to degrees */
+        public static final double INTAKE_PIVOT_RATIO = .1125;
+    }
+
+    /** Any constants needed by the shooter */
+    public static final class ShooterConstants {
+        /** Converts shooter pivot motor revolutions to degrees */
+        public static final double SHOOTER_PIVOT_RATIO = 1.3889;
+    }
+
+    public static final class ClimberConstants {
+        /** Converts climber motor revolutions to inches */
+        public static final double CLIMBER_RATIO = 3.61;
     }
 
     /** Turning a module to absolute 0 minus its offset will point it forward */
     public static final class SwerveModuleOffsets {
-        public static final double FL_OFFSET = -20;
-        public static final double FR_OFFSET = -136.7;
-        public static final double RL_OFFSET = 110.1;
-        public static final double RR_OFFSET = 174.5;
+        public static final double FL_OFFSET = 112;
+        public static final double FR_OFFSET = 76.9;
+        public static final double RL_OFFSET = 46.8;
+        public static final double RR_OFFSET = 95.5;
     }
 
     /** Whether or not each swerve component should be inverted/reversed */
@@ -113,9 +127,9 @@ public final class Constants {
     /** Constants related to swerve calculations */
     public static final class SwerveConstants {
         /** The distance between the left and right wheels */
-        public static final double TRACK_WIDTH = Units.inchesToMeters(22);
+        public static final double TRACK_WIDTH = Units.inchesToMeters(22.75);
         /** The distance between the front and rear wheels */
-        public static final double WHEEL_BASE = Units.inchesToMeters(27);
+        public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
 
         /** An array containing the position of each module as a {@link Translation2d} object */
         public static final Translation2d[] MODULE_TRANSLATIONS = {

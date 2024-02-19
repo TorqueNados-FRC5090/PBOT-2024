@@ -2,11 +2,12 @@ package frc.robot.subsystems.drivetrain;
 
 // WPI imports
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 // Motor related imports
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkPIDController;
@@ -29,7 +30,7 @@ public class SwerveModule extends SubsystemBase {
     private final int VEL_SLOT = 1;
     private int moduleNumber;
     private CANSparkMax turnMotor;
-    private CANSparkMax driveMotor;
+    private CANSparkFlex driveMotor;
     private SwerveModuleState state;
     private SparkPIDController driveController;
     private RelativeEncoder driveEncoder;
@@ -37,6 +38,7 @@ public class SwerveModule extends SubsystemBase {
     private PIDController turnController;
     private CANcoder angleEncoder;
     private double angleOffset;
+    private double m_lastAngle;
     private Pose2d pose;
 
     /**
@@ -64,7 +66,7 @@ public class SwerveModule extends SubsystemBase {
         angleOffset = turningEncoderOffset;
 
         // Construct and configure the driving motor
-        driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
+        driveMotor = new CANSparkFlex(driveMotorID, MotorType.kBrushless);
         driveMotor.restoreFactoryDefaults();
         driveMotor.setSmartCurrentLimit(45);
         driveMotor.getPIDController().setFF(0.0);
@@ -183,9 +185,15 @@ public class SwerveModule extends SubsystemBase {
                 DRIVE_PID_SLOT
             );
         }
+
+        // Get the angle to turn the module to
+        double angle =
+            (Math.abs(state.speedMetersPerSecond) <= (MAX_TRANSLATION_SPEED * 0.01))
+                ? m_lastAngle
+                : state.angle.getDegrees(); // Prevent rotating module if speed is less than 1%. Prevents Jittering.
     
         // Point turning motor at the target angle
-        turnTo(state.angle.getDegrees());
+        turnTo(angle);
     }
 
     /** Turn the module to point in some direction
@@ -197,7 +205,7 @@ public class SwerveModule extends SubsystemBase {
 
         double pidOut = turnController.calculate(turnEncoder.getPosition(), angle);
         // if robot is not moving, stop the turn motor oscillating
-        if (turnAngleError < .5 && Math.abs(state.speedMetersPerSecond) <= MAX_TRANSLATION_SPEED * .01)
+        if (turnAngleError < .5 && Math.abs(state.speedMetersPerSecond) <= 0.03)
             pidOut = 0;
 
         turnMotor.setVoltage(pidOut * RobotController.getBatteryVoltage());
@@ -252,7 +260,7 @@ public class SwerveModule extends SubsystemBase {
     @Override // Called every 20ms
     public void periodic() {
         // Prints the position of the swerve module heading in degrees
-        SmartDashboard.putNumber("Module " + moduleNumber + " Position", getHeadingDegrees());
+        SmartDashboard.putNumber("Module " + moduleNumber + " Position", angleEncoder.getAbsolutePosition().getValueAsDouble() * 360);
         // Prints the speed of the swerve module 
         SmartDashboard.putNumber("Module " + moduleNumber + " Speed", getDriveMetersPerSecond());
     }

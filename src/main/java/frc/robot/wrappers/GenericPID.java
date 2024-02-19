@@ -3,12 +3,12 @@ package frc.robot.wrappers;
 // Imports
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase;
 
 /** Wraps over {@link SparkPIDController} for ease of use */
 public class GenericPID {
     /** The motor being controlled */
-    private CANSparkMax motor;
+    private CANSparkBase motor;
     /** The motor's PID controller */
     private SparkPIDController controller;
 
@@ -22,7 +22,7 @@ public class GenericPID {
     /** The PID controller's target */
     private double setpoint = 0;
     /** {@link CANSparkMax.ControlType How} the motor should be controlled */
-    private CANSparkMax.ControlType controlType;
+    private CANSparkBase.ControlType controlType;
 
     /** The minimum setpoint to be allowed */
     private double min = Integer.MIN_VALUE;
@@ -39,7 +39,7 @@ public class GenericPID {
      *  @param motor The {@link CANSparkMax motor} to control 
      *  @param controlType {@link CANSparkMax.ControlType How} the motor should be controlled
      *  @param P The P value to be used by the controller */
-    public GenericPID(CANSparkMax motor, CANSparkMax.ControlType controlType, double P) {
+    public GenericPID(CANSparkBase motor, CANSparkBase.ControlType controlType, double P) {
         this(motor, controlType, P, 0, 0);
     }
 
@@ -49,7 +49,7 @@ public class GenericPID {
      *  @param P The P value to be used by the controller 
      *  @param I The I value to be used by the controller 
      *  @param D The D value to be used by the controller */
-    public GenericPID(CANSparkMax motor, CANSparkMax.ControlType controlType, double P, double I, double D) {
+    public GenericPID(CANSparkBase motor, CANSparkBase.ControlType controlType, double P, double I, double D) {
         this.motor = motor;
         controller = motor.getPIDController();
 
@@ -70,7 +70,7 @@ public class GenericPID {
     public double getD() { return controller.getD(); }
     public double getSetpoint() { return usingPositionControl() ? setpoint/ratio : setpoint; }
     public double getRatio(){ return ratio; }
-    public CANSparkMax.ControlType getControlType() { return controlType; }
+    public CANSparkBase.ControlType getControlType() { return controlType; }
     public double getMin() { return min; }
     public double getMax() { return max; }
     /** Calculates whether the motor has reached its setpoint based off of the set control type
@@ -102,7 +102,7 @@ public class GenericPID {
         this.I = I; controller.setI(I);
         this.D = D; controller.setD(D); 
     }
-    public void setControlType(CANSparkMax.ControlType controlType) { this.controlType = controlType; }
+    public void setControlType(CANSparkBase.ControlType controlType) { this.controlType = controlType; }
     /** @param ratio Incoming position instructions are multiplied by this, outgoing ones are divided */
     public void setRatio(double ratio){ this.ratio = ratio;}
     public void setMin(double min) { this.min = min*ratio; setSetpoint(this.setpoint); }

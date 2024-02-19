@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.ControlType;
 
@@ -10,8 +11,8 @@ import frc.robot.wrappers.GenericPID;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class Shooter extends SubsystemBase{
-    private CANSparkMax leaderMotor;
-    private CANSparkMax followerMotor;
+    private CANSparkFlex leaderMotor;
+    private CANSparkFlex followerMotor;
     private GenericPID shooterPID;
 
     /** Constructs a shooter
@@ -19,10 +20,10 @@ public class Shooter extends SubsystemBase{
      *  @param leftMotorID The ID of the left motor from the perspective of the robot
      */
     public Shooter(int rightMotorID, int leftMotorID) {
-        leaderMotor = new CANSparkMax(rightMotorID, MotorType.kBrushless);
+        leaderMotor = new CANSparkFlex(rightMotorID, MotorType.kBrushless);
         leaderMotor.restoreFactoryDefaults();
         
-        followerMotor = new CANSparkMax(leftMotorID, MotorType.kBrushless);
+        followerMotor = new CANSparkFlex(leftMotorID, MotorType.kBrushless);
         followerMotor.restoreFactoryDefaults();
         followerMotor.follow(leaderMotor, true);
 
