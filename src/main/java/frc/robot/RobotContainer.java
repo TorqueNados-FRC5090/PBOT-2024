@@ -36,7 +36,7 @@ public class RobotContainer {
 
     private final SwerveDrivetrain drivetrain = new SwerveDrivetrain();
     private final Intake intake = new Intake(INTAKE_DRIVER_ID, INTAKE_ROTATOR_ID, INTAKE_LIMIT_ID);
-    private final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID);
+    private final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID, SHOOTER_PIVOT_RIGHT_ID, SHOOTER_PIVOT_LEFT_ID);
     private final Blinkin blinkin = new Blinkin();
     private final Limelight shooterLimelight = new Limelight("limelight-pbshoot");
     
@@ -124,6 +124,6 @@ public class RobotContainer {
         fullShooterBtn.whileTrue(new InstantCommand(() -> shooter.setSpeed(5000)));
         // PRESS START -> Stop the shooter
         Trigger stopShootBtn = new Trigger(() -> operatorController.getStartButton());
-        stopShootBtn.onTrue(new InstantCommand(()-> shooter.stop()));
+        stopShootBtn.onTrue(new InstantCommand(()-> shooter.stopShooter()));
     }
 }
