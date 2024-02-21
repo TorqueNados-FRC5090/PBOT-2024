@@ -5,6 +5,7 @@ import static frc.robot.Constants.ControllerPorts.*;
 import static frc.robot.Constants.IntakeIDs.*;
 import static frc.robot.Constants.IntakeConstants.IntakePosition;
 import static frc.robot.Constants.ShooterIDs.*;
+import static frc.robot.Constants.ClimberIDs.*;
 
 // Command imports
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +24,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Blinkin;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.drivetrain.SwerveDrivetrain;
 
 // Other imports
@@ -37,6 +39,7 @@ public class RobotContainer {
     private final SwerveDrivetrain drivetrain = new SwerveDrivetrain();
     private final Intake intake = new Intake(INTAKE_DRIVER_ID, INTAKE_ROTATOR_ID, INTAKE_LIMIT_ID);
     private final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID, SHOOTER_PIVOT_RIGHT_ID, SHOOTER_PIVOT_LEFT_ID);
+    private final Climber climber = new Climber(CLIMBER_RIGHT_ID, CLIMBER_LEFT_ID);
     private final Blinkin blinkin = new Blinkin();
     private final Limelight shooterLimelight = new Limelight("limelight-pbshoot");
     

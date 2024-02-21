@@ -23,7 +23,8 @@ public class Shooter extends SubsystemBase{
     /** Constructs a shooter
      *  @param shooterRightID The ID of the right shooter motor from the perspective of the robot
      *  @param shooterLeftID The ID of the left shooter motor from the perspective of the robot
-     *  @param 
+     *  @param pivotRightID The ID of the right shooter pivoting motor from the perspective of the robot
+     *  @param pivotLeftID The ID of the left shooter pivoting motor from the perspective of the robot
      */
     public Shooter(int shooterRightID, int shooterLeftID, int pivotRightID, int pivotLeftID) {
         shooterLeader = new CANSparkFlex(shooterRightID, MotorType.kBrushless);
@@ -34,9 +35,9 @@ public class Shooter extends SubsystemBase{
 
         shooterPID = new GenericPID(shooterLeader, ControlType.kVelocity, .00022, .0000005, 0);
 
-        pivotLeader = new CANSparkMax(pivotRightID, MotorType.kBrushless);
+        pivotLeader = new CANSparkMax(pivotLeftID, MotorType.kBrushless);
         pivotLeader.restoreFactoryDefaults();
-        pivotFollower = new CANSparkMax(pivotLeftID, MotorType.kBrushless);
+        pivotFollower = new CANSparkMax(pivotRightID, MotorType.kBrushless);
         pivotFollower.restoreFactoryDefaults();
         pivotFollower.follow(pivotLeader, true);
 
