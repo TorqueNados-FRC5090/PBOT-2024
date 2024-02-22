@@ -8,32 +8,40 @@ import static frc.robot.Constants.ShooterIDs.*;
 import static frc.robot.Constants.ClimberIDs.*;
 
 // Command imports
-import frc.robot.commands.*;
-import frc.robot.commands.drive_commands.LockDrivetrain;
-import frc.robot.commands.drive_commands.SwerveDriveCommand;
-import frc.robot.commands.intake_commands.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
-// Subsystem imports
-import frc.robot.subsystems.*;
-import frc.robot.subsystems.drivetrain.*;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.intake_commands.IntakePiece;
+import frc.robot.commands.AutonContainer;
+import frc.robot.commands.LEDControlCommand;
+import frc.robot.commands.LockDrivetrain;
+import frc.robot.commands.intake_commands.Eject;
+import frc.robot.commands.LimeDrive;
+import frc.robot.commands.intake_commands.IntakeAutoPickup;
+import frc.robot.commands.intake_commands.SetIntakePosition;
+import frc.robot.commands.SwerveDriveCommand;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Blinkin;
+import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.drivetrain.SwerveDrivetrain;
 
 // Other imports
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotContainer {
-    private final CommandXboxController driverController = new CommandXboxController(DRIVER_PORT);
-    private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_PORT);
+    private final XboxController driverController = new XboxController(DRIVER_PORT);
+    private final XboxController operatorController = new XboxController(OPERATOR_PORT);
 
-    public final SwerveDrivetrain drivetrain = new SwerveDrivetrain();
-    public final Intake intake = new Intake(INTAKE_DRIVER_ID, INTAKE_ROTATOR_ID, INTAKE_LIMIT_ID);
-    public final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID, SHOOTER_PIVOT_RIGHT_ID, SHOOTER_PIVOT_LEFT_ID);
-    public final Climber climber = new Climber(CLIMBER_RIGHT_ID, CLIMBER_LEFT_ID);
-    public final Blinkin blinkin = new Blinkin();
-    public final Limelight shooterLimelight = new Limelight("limelight-pbshoot");
+    private final SwerveDrivetrain drivetrain = new SwerveDrivetrain();
+    private final Intake intake = new Intake(INTAKE_DRIVER_ID, INTAKE_ROTATOR_ID, INTAKE_LIMIT_ID);
+    private final Shooter shooter = new Shooter(SHOOTER_RIGHT_ID, SHOOTER_LEFT_ID, SHOOTER_PIVOT_RIGHT_ID, SHOOTER_PIVOT_LEFT_ID);
+    private final Climber climber = new Climber(CLIMBER_RIGHT_ID, CLIMBER_LEFT_ID);
+    private final Blinkin blinkin = new Blinkin();
+    private final Limelight shooterLimelight = new Limelight("limelight-pbshoot");
     
     private final AutonContainer auton = new AutonContainer();
     private final SendableChooser<Command> autonChooser = new SendableChooser<Command>();    
@@ -78,32 +86,47 @@ public class RobotContainer {
         () -> driverController.getRightX()));
 
         // HOLD X -> Lock the drivetrain for anti-defense
-        driverController.x().whileTrue(new LockDrivetrain(drivetrain));
+        Trigger lockBtn = new Trigger(() -> driverController.getXButton());
+        lockBtn.whileTrue(new LockDrivetrain(drivetrain));
         // PRESS START -> Reset the heading of the robot so the currently faced direction becomes 0
-        driverController.start().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
+        Trigger resetHeadingBtn = new Trigger(() -> driverController.getStartButton());
+        resetHeadingBtn.onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
         // PRESS BACK -> Switch the robot between field-centric and robot-centric mode
-        driverController.back().onTrue(new InstantCommand(() -> drivetrain.toggleFieldCentric()));
-        // HOLD LT -> Activate the automatic intake
-        driverController.leftTrigger().whileTrue(new IntakeAutoPickup(intake));
+        Trigger toggleOrientationBtn = new Trigger(() -> driverController.getBackButton());
+        toggleOrientationBtn.onTrue(new InstantCommand(() -> drivetrain.toggleFieldCentric()));
+        // HOLD RT -> The robot will automatically drive 2 meters infront of the nearest in-view apriltag
+        Trigger limeDriveBtn = new Trigger(() -> driverController.getRightTriggerAxis() > .5);
+        limeDriveBtn.whileTrue(new LimeDrive(drivetrain, shooterLimelight, -2, false));
     }
 
     /** Configures a set of control bindings for the robot's operator */
     private void setOperatorControls() {
         // PRESS A -> Move the intake to the floor pickup position
-        operatorController.a().onTrue(new SetIntakePosition(intake, IntakePosition.PICKUP));
+        Trigger pickUpBtn = new Trigger(() -> operatorController.getAButton());
+        pickUpBtn.onTrue(new SetIntakePosition(intake, IntakePosition.PICKUP));
         // PRESS B -> Move the intake to the climbing position (vertical)
-        operatorController.b().onTrue(new SetIntakePosition(intake, IntakePosition.CLIMB));
+        Trigger climbBtn = new Trigger(() -> operatorController.getBButton());
+        climbBtn.onTrue(new SetIntakePosition(intake, IntakePosition.CLIMB));
         // PRESS Y -> Move the intake to the shooting position
-        operatorController.y().onTrue(new SetIntakePosition(intake, IntakePosition.SHOOT));
+        Trigger shootBtn = new Trigger(() -> operatorController.getYButton());
+        shootBtn.onTrue(new SetIntakePosition(intake, IntakePosition.SHOOT));
+
+        // HOLD X -> Activate the automatic intake
+        Trigger AutoIntakeBtn = new Trigger(() -> driverController.getLeftTriggerAxis() > .5);
+        AutoIntakeBtn.whileTrue(new IntakeAutoPickup(intake));
 
         // HOLD RT -> Drive the intake outward for piece ejection
-        operatorController.rightTrigger().whileTrue(new Eject(intake));
+        Trigger ejectBtn = new Trigger(() -> operatorController.getRightTriggerAxis() > .5);
+        ejectBtn.whileTrue(new Eject(intake));
 
         // PRESS LB -> Set the shooter to half speed
-        operatorController.leftBumper().onTrue(new InstantCommand(() -> shooter.setSpeed(2500)));
+        Trigger halfShooterBtn = new Trigger(() -> operatorController.getLeftBumper());
+        halfShooterBtn.whileTrue(new InstantCommand(() -> shooter.setSpeed(2500)));
         // PRESS RB -> Set the shooter to full speed
-        operatorController.rightBumper().onTrue(new InstantCommand(() -> shooter.setSpeed(5000)));
+        Trigger fullShooterBtn = new Trigger(() -> operatorController.getRightBumper());
+        fullShooterBtn.whileTrue(new InstantCommand(() -> shooter.setSpeed(5000)));
         // PRESS START -> Stop the shooter
-        operatorController.start().onTrue(new InstantCommand(()-> shooter.stopShooter()));
+        Trigger stopShootBtn = new Trigger(() -> operatorController.getStartButton());
+        stopShootBtn.onTrue(new InstantCommand(()-> shooter.stopShooter()));
     }
 }
