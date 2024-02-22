@@ -5,7 +5,6 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.ClimberConstants.CLIMBER_RATIO;
@@ -45,11 +44,6 @@ public class Climber extends SubsystemBase {
     public void stop() { 
         climberPID.pause(); 
         leaderMotor.stopMotor(); 
-    }
-
-    public Command manual(double speed) {
-        return this.startEnd(() -> leaderMotor.set(speed), 
-                             () -> leaderMotor.set(0));
     }
 
     @Override
